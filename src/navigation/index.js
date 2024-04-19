@@ -18,7 +18,7 @@ function AppNavigation() {
             <Stack.Navigator screenOptions={{ headerShown: true }} initialRouteName='Home'>
                 <Stack.Screen name="Home" component={HomeScreen} />
                 <Stack.Screen name="Fan" component={FanScreen} />
-                <Stack.Screen name="Led" component={LedScreen} />
+                <Stack.Screen name="Light" component={LedScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     );

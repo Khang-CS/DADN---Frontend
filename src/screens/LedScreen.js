@@ -1,10 +1,13 @@
 import { View, Text } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react'
+import ColorOptions from '../components/ColorOptions';
+
 
 const LedScreen = () => {
+    const [color, setColor] = useState("#aabbcc");
     return (
         <View>
-            <Text>LedScreen</Text>
+            <ColorOptions />
         </View>
     )
 }

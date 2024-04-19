@@ -1,28 +1,92 @@
-import { View, Text, SafeAreaView, TouchableOpacity, Image } from 'react-native'
+import { View, Text, SafeAreaView, TouchableOpacity, Image, LogBox } from 'react-native'
 import React, { useState } from 'react'
 import ToggleSwitch from 'toggle-switch-react-native'
 import { useNavigation } from '@react-navigation/native'
+import axios from 'axios'
 
+
+const IP = '10.230.147.151'
+const PORT = '3002'
+
+
+LogBox.ignoreLogs([
+    'Non-serializable values were found in the navigation state',
+]);
 
 const HomeScreen = () => {
     const navigation = useNavigation();
 
-    const [isLightOn, setLight] = useState(false);
-    const [isFanOn, setFan] = useState(false);
-    const [isDoorOpen, setDoor] = useState(false);
+    const [light, setLight] = useState(false);
+
+    const [fan, setFan] = useState(false);
+    const [fanSpeed, setFanSpeed] = useState(0)
+
+    const [door, setDoor] = useState(false);
 
 
 
-    const setFanStatus = (status) => {
-        setFan(!status)
+    const setFanStatus = async () => {
+        let toSet = !fan
+        setFan(toSet)
+
+        let feedKey = {
+            feedKey: "yolo-fan",
+            value: "50"
+        }
+
+        if (!toSet) {
+            feedKey.value = "0"
+        }
+
+        //Call BE
+        await axios.post(`http://${IP}:${PORT}/adafruits/post`, feedKey).then((response) => {
+            console.log('call fan api', response.data)
+        })
+            .catch(error => {
+                console.log(error)
+            })
+        //
     }
 
-    const setLightStatus = () => {
-        setLight(!isLightOn)
+    const setLightStatus = async () => {
+        let toSet = !light
+
+        setLight(toSet)
+
+        let feedKey = {
+            feedKey: "yolo-led",
+            value: "#ed1c1c"
+        }
+
+        if (!toSet) {
+            feedKey.value = "#000000"
+        }
+
+        //Call BE
+        await axios.post(`http://${IP}:${PORT}/adafruits/post`, feedKey).then((response) => {
+            console.log('call led api', response.data)
+        })
+            .catch(error => {
+                console.log(error)
+            })
+        //
     }
 
-    const setDoorStatus = () => {
-        setDoor(!isDoorOpen)
+    const setDoorStatus = async () => {
+        let toSet = !door
+
+        setDoor(toSet)
+
+        let feedKey = { feedKey: "yolo-door" }
+
+        //Call BE
+        await axios.post(`http://${IP}:${PORT}/adafruits/post/toggle`, feedKey).then((response) => {
+            console.log('call door api', response.data)
+        })
+            .catch(error => {
+                console.log(error)
+            })
+        //
     }
 
     return (
@@ -40,8 +104,11 @@ const HomeScreen = () => {
                         onPress={
                             () => navigation.navigate('Fan',
                                 {
-                                    fanStatus: isFanOn,
-                                    setFanStatus: setFanStatus
+                                    fan: fan,
+                                    setFan: setFan,
+
+                                    fanSpeed: fanSpeed,
+                                    setFanSpeed: setFanSpeed,
                                 }
                             )
                         }
@@ -50,26 +117,26 @@ const HomeScreen = () => {
                         <Text className="mb-[10px] font-sans font-bold">Fan</Text>
                         <Image className="h-[30px] w-[30px] mb-[10px]" source={require('../../assets/fan.png')} />
                         <ToggleSwitch
-                            isOn={isFanOn}
+                            isOn={fan}
                             onColor="rgba(102, 255, 102, 1)"
                             offColor="grey"
                             labelStyle={{ color: "black", fontWeight: "900" }}
                             size="large"
-                            onToggle={() => setFanStatus(isFanOn)}
+                            onToggle={setFanStatus}
                         />
                     </TouchableOpacity>
                 </View>
 
                 <View className="flex justify-center items-center h-[200px] w-1/2  p-4">
                     <TouchableOpacity
-                        onPress={() => navigation.navigate('Led')}
+                        onPress={() => navigation.navigate('Light')}
                         className='flex justify-center items-center bg-yellow-200 h-[170px] w-[170px] rounded-[20px]'
                     >
                         {/* Light Control */}
                         <Text className="mb-[10px] font-sans font-bold">Light</Text>
                         <Image className="h-[30px] w-[30px] mb-[10px]" source={require('../../assets/light.png')} />
                         <ToggleSwitch
-                            isOn={isLightOn}
+                            isOn={light}
                             onColor="rgba(102, 255, 102, 1)"
                             offColor="grey"
                             labelStyle={{ color: "black", fontWeight: "900" }}
@@ -85,7 +152,7 @@ const HomeScreen = () => {
                         <Text className="mb-[10px] font-sans font-bold">Door</Text>
                         <Image className="h-[30px] w-[30px] mb-[10px]" source={require('../../assets/door.png')} />
                         <ToggleSwitch
-                            isOn={isDoorOpen}
+                            isOn={door}
                             onColor="rgba(102, 255, 102, 1)"
                             offColor="grey"
                             labelStyle={{ color: "black", fontWeight: "900" }}
