@@ -10,7 +10,7 @@ LogBox.ignoreLogs([
     'Non-serializable values were found in the navigation state',
 ]);
 
-const IP = '10.230.147.151'
+const IP = '192.168.1.9'
 const PORT = '3002'
 
 const FanScreen = ({ route }) => {
@@ -69,7 +69,7 @@ const FanScreen = ({ route }) => {
 
         //Call BE
         await axios.post(`http://${IP}:${PORT}/adafruits/post`, feedKey).then((response) => {
-            console.log('call fan api', response.data)
+            console.log('call fan api fan speed: ', speed, response.data)
         })
             .catch(error => {
                 console.log(error)

@@ -1,11 +1,13 @@
 import { View, Text, SafeAreaView, TouchableOpacity, Image, LogBox } from 'react-native'
-import React, { useState } from 'react'
+import Voice from '@react-native-community/voice';
+import React, { useEffect, useState } from 'react'
 import ToggleSwitch from 'toggle-switch-react-native'
 import { useNavigation } from '@react-navigation/native'
 import axios from 'axios'
+import TempHumidScreen from './TempHumidScreen'
 
 
-const IP = '10.230.147.151'
+const IP = '192.168.1.9'
 const PORT = '3002'
 
 
@@ -23,9 +25,182 @@ const HomeScreen = () => {
 
     const [door, setDoor] = useState(false);
 
+    const [record, setRecord] = useState(false)
+
+    // speech result
+    const [result, setResult] = useState('')
+
+    const setRecordStatus = () => {
+        setRecord(!record)
+    }
+
+    const speechStartHandler = e => {
+        setRecord(true)
+        console.log('speech start handler')
+    }
+
+    const speechEndHandler = e => {
+        setRecord(false)
+        console.log('speech end handler')
+    }
+
+    const speechResultsHandler = e => {
+
+        console.log('voice event: ', e)
+        const text = e.value[0]
+        setResult(text)
+
+        if (text === "turn on the fan") {
+
+            setFan(true)
+
+            let feedKey = {
+                feedKey: "yolo-fan",
+                value: "50"
+            }
+
+            setFanSpeed(feedKey.value)
+
+            //Call BE
+            axios.post(`http://${IP}:${PORT}/adafruits/post`, feedKey).then((response) => {
+                console.log('call fan api, fan speed: ', feedKey.value, response.data)
+            })
+                .catch(error => {
+                    console.log(error)
+                })
+            //
 
 
-    const setFanStatus = async () => {
+        }
+
+        else if (text === "turn off the fan") {
+
+            setFan(false)
+
+            let feedKey = {
+                feedKey: "yolo-fan",
+                value: "0"
+            }
+
+            setFanSpeed(feedKey.value)
+
+            //Call BE
+            axios.post(`http://${IP}:${PORT}/adafruits/post`, feedKey).then((response) => {
+                console.log('call fan api, fan speed: ', feedKey.value, response.data)
+            })
+                .catch(error => {
+                    console.log(error)
+                })
+            //
+        }
+
+        else if (text == 'turn on the light') {
+            setLight(true)
+
+            let feedKey = {
+                feedKey: "yolo-led",
+                value: "#ed1c1c"
+            }
+
+            //Call BE
+            axios.post(`http://${IP}:${PORT}/adafruits/post`, feedKey).then((response) => {
+                console.log('call led api', response.data)
+            })
+                .catch(error => {
+                    console.log(error)
+                })
+            //
+        }
+
+        else if (text == 'turn off the light') {
+            setLight(false)
+
+            let feedKey = {
+                feedKey: "yolo-led",
+                value: "#000000"
+            }
+
+            //Call BE
+            axios.post(`http://${IP}:${PORT}/adafruits/post`, feedKey).then((response) => {
+                console.log('call led api', response.data)
+            })
+                .catch(error => {
+                    console.log(error)
+                })
+            //
+        }
+
+        else if (text == 'open the door') {
+            setDoor(true)
+
+            let feedKey = { feedKey: "yolo-door" }
+
+            //Call BE
+            axios.post(`http://${IP}:${PORT}/adafruits/post/toggle`, feedKey).then((response) => {
+                console.log('call door api', response.data)
+            })
+                .catch(error => {
+                    console.log(error)
+                })
+            //
+        }
+
+        else if (text == 'close the door') {
+            setDoor(false)
+
+            let feedKey = { feedKey: "yolo-door" }
+
+            //Call BE
+            axios.post(`http://${IP}:${PORT}/adafruits/post/toggle`, feedKey).then((response) => {
+                console.log('call door api', response.data)
+            })
+                .catch(error => {
+                    console.log(error)
+                })
+
+            //
+        }
+    }
+
+    const speechErrorHandler = e => {
+        console.log('speech error handler: ', e)
+    }
+
+    const startRecording = async () => {
+        setRecord(true)
+        try {
+            await Voice.start('en-GB')
+        }
+        catch (error) {
+            console.log('error: ', error)
+        }
+    }
+
+    const stopRecording = async () => {
+
+        try {
+            await Voice.stop()
+            setRecord(false)
+            // response
+        }
+        catch (error) {
+            console.log('error: ', error)
+        }
+    }
+
+    useEffect(() => {
+        Voice.onSpeechStart = speechStartHandler
+        Voice.onSpeechEnd = speechEndHandler
+        Voice.onSpeechResults = speechResultsHandler
+        Voice.onSpeechError = speechErrorHandler
+
+        return () => {
+            // destroy the voice instance
+            Voice.destroy().then(Voice.removeAllListeners)
+        }
+    }, [])
+
+    const setFanStatus = () => {
         let toSet = !fan
         setFan(toSet)
 
@@ -38,9 +213,11 @@ const HomeScreen = () => {
             feedKey.value = "0"
         }
 
+        setFanSpeed(feedKey.value)
+
         //Call BE
-        await axios.post(`http://${IP}:${PORT}/adafruits/post`, feedKey).then((response) => {
-            console.log('call fan api', response.data)
+        axios.post(`http://${IP}:${PORT}/adafruits/post`, feedKey).then((response) => {
+            console.log('call fan api, fan speed: ', feedKey.value, response.data)
         })
             .catch(error => {
                 console.log(error)
@@ -91,11 +268,7 @@ const HomeScreen = () => {
 
     return (
         <SafeAreaView className="flex flex-col">
-            <View className="my-[10px] flex justify-center items-center">
-                <View className="flex justify-center items-center w-[200px] h-[200px] rounded-full bg-pink-300">
-                    <Text className="font-sans font-extrabold text-[50px]">12° C</Text>
-                </View>
-            </View>
+            <TempHumidScreen />
 
             <View className="mt-[10px] flex flex-row flex-wrap justify-between">
                 <View className="flex justify-center items-center h-[200px] w-1/2  p-4">
@@ -160,6 +333,26 @@ const HomeScreen = () => {
                             onToggle={setDoorStatus}
                         />
                     </TouchableOpacity>
+                </View>
+
+                <View className="flex justify-center items-center h-[200px] w-1/2 p-4">
+                    {record ? (
+                        <TouchableOpacity
+                            onPress={stopRecording}
+                            className='flex justify-center items-center bg-green-500 h-[170px] w-[170px] rounded-[20px]'>
+                            <Text className="mb-[10px] font-sans font-bold">Voice</Text>
+                            <Image className="h-[70px] w-[70px] mb-[10px]" source={require('../../assets/recorderIcon.png')} />
+                        </TouchableOpacity>
+                    ) : (
+                        <TouchableOpacity
+                            onPress={startRecording}
+                            className='flex justify-center items-center bg-red-500 h-[170px] w-[170px] rounded-[20px]'
+                        >
+                            <Text className="mb-[10px] font-sans font-bold">Voice</Text>
+                            <Image className="h-[70px] w-[70px] mb-[10px]" source={require('../../assets/recorderIcon.png')} />
+                        </TouchableOpacity>
+                    )}
+
                 </View>
             </View>
         </SafeAreaView >
