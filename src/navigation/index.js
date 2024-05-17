@@ -9,6 +9,8 @@ import FanScreen from '../screens/FanScreen'
 import LedScreen from '../screens/LedScreen'
 import LogScreen from '../screens/LogScreen'
 import DoorScreen from '../screens/DoorScreen'
+import ThresholdScreen from '../screens/ThresholdScreen';
+import TempHumidHistoryScreen from '../screens/TempHumidHistoryScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -19,6 +21,8 @@ function AppNavigation() {
                 <Stack.Screen name="Home" component={HomeScreen} />
                 <Stack.Screen name="Fan" component={FanScreen} />
                 <Stack.Screen name="Light" component={LedScreen} />
+                <Stack.Screen name='Threshold' component={ThresholdScreen} />
+                <Stack.Screen name='TempHumidHistory' component={TempHumidHistoryScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     );

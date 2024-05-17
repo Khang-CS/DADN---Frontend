@@ -5,10 +5,11 @@ import ToggleSwitch from 'toggle-switch-react-native'
 import { useNavigation } from '@react-navigation/native'
 import axios from 'axios'
 import TempHumidScreen from './TempHumidScreen'
+import env from '../api/env.json'
 
 
-const IP = '192.168.1.9'
-const PORT = '3002'
+const IP = env.IP
+const PORT = env.PORT
 
 
 LogBox.ignoreLogs([
@@ -16,9 +17,12 @@ LogBox.ignoreLogs([
 ]);
 
 const HomeScreen = () => {
+
     const navigation = useNavigation();
 
     const [light, setLight] = useState(false);
+
+    const [lightColor, setLightColor] = useState('#ef4444')
 
     const [fan, setFan] = useState(false);
     const [fanSpeed, setFanSpeed] = useState(0)
@@ -96,10 +100,11 @@ const HomeScreen = () => {
 
         else if (text == 'turn on the light') {
             setLight(true)
+            setLightColor('#ef4444')
 
             let feedKey = {
                 feedKey: "yolo-led",
-                value: "#ed1c1c"
+                value: lightColor
             }
 
             //Call BE
@@ -114,6 +119,7 @@ const HomeScreen = () => {
 
         else if (text == 'turn off the light') {
             setLight(false)
+            setLightColor('#000000')
 
             let feedKey = {
                 feedKey: "yolo-led",
@@ -189,6 +195,7 @@ const HomeScreen = () => {
     }
 
     useEffect(() => {
+        // voice handler events
         Voice.onSpeechStart = speechStartHandler
         Voice.onSpeechEnd = speechEndHandler
         Voice.onSpeechResults = speechResultsHandler
@@ -229,19 +236,21 @@ const HomeScreen = () => {
         let toSet = !light
 
         setLight(toSet)
+        setLightColor('#ef4444')
 
         let feedKey = {
             feedKey: "yolo-led",
-            value: "#ed1c1c"
+            value: '#ef4444'
         }
 
         if (!toSet) {
             feedKey.value = "#000000"
+            setLightColor('#000000')
         }
 
         //Call BE
         await axios.post(`http://${IP}:${PORT}/adafruits/post`, feedKey).then((response) => {
-            console.log('call led api', response.data)
+            console.log('call led api', light, response.data)
         })
             .catch(error => {
                 console.log(error)
@@ -302,7 +311,17 @@ const HomeScreen = () => {
 
                 <View className="flex justify-center items-center h-[200px] w-1/2  p-4">
                     <TouchableOpacity
-                        onPress={() => navigation.navigate('Light')}
+                        onPress={() => navigation.navigate('Light',
+
+                            {
+                                light: light,
+                                setLight: setLight,
+
+                                lightColor: lightColor,
+                                setLightColor: setLightColor,
+                            }
+                        )
+                        }
                         className='flex justify-center items-center bg-yellow-200 h-[170px] w-[170px] rounded-[20px]'
                     >
                         {/* Light Control */}
@@ -336,24 +355,39 @@ const HomeScreen = () => {
                 </View>
 
                 <View className="flex justify-center items-center h-[200px] w-1/2 p-4">
-                    {record ? (
-                        <TouchableOpacity
-                            onPress={stopRecording}
-                            className='flex justify-center items-center bg-green-500 h-[170px] w-[170px] rounded-[20px]'>
-                            <Text className="mb-[10px] font-sans font-bold">Voice</Text>
-                            <Image className="h-[70px] w-[70px] mb-[10px]" source={require('../../assets/recorderIcon.png')} />
-                        </TouchableOpacity>
-                    ) : (
-                        <TouchableOpacity
-                            onPress={startRecording}
-                            className='flex justify-center items-center bg-red-500 h-[170px] w-[170px] rounded-[20px]'
-                        >
-                            <Text className="mb-[10px] font-sans font-bold">Voice</Text>
-                            <Image className="h-[70px] w-[70px] mb-[10px]" source={require('../../assets/recorderIcon.png')} />
-                        </TouchableOpacity>
-                    )}
+
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate('Threshold')}
+                        className='flex justify-center items-center bg-[#009999] h-[170px] w-[170px] rounded-[20px]'>
+                        <Text className="mb-[10px] font-sans font-bold">Threshold Settings</Text>
+                        <Image className="h-[70px] w-[70px] mb-[10px]" source={require('../../assets/threshHold.png')} />
+                    </TouchableOpacity>
+
+
 
                 </View>
+            </View>
+            <View className='mt-[10px] flex flex-row flex-wrap justify-between justify-center'>
+                {record ?
+                    (
+                        <TouchableOpacity
+                            onPress={stopRecording}
+                            className='flex justify-center items-center bg-green-500 h-[60px] w-[60px] rounded-full'
+                        >
+                            <Image className="h-[25px] w-[25px]" source={require('../../assets/recorderIcon.png')} />
+                        </TouchableOpacity>
+                    )
+                    :
+                    (
+                        <TouchableOpacity
+                            onPress={startRecording}
+                            className='flex justify-center items-center bg-red-500 h-[60px] w-[60px] rounded-full'
+                        >
+                            <Image className="h-[21px] w-[21px]" source={require('../../assets/recorderIcon.png')} />
+                        </TouchableOpacity>
+                    )
+                }
+
             </View>
         </SafeAreaView >
     )

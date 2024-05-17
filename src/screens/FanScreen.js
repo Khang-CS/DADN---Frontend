@@ -1,8 +1,9 @@
-import { View, Text, ScrollView } from 'react-native'
+import { View, Text, ScrollView, Button } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import InputSpinner from "react-native-input-spinner";
 import ToggleSwitch from 'toggle-switch-react-native';
 import { LogBox } from 'react-native';
+import env from '../api/env.json'
 
 import axios from 'axios'
 
@@ -10,8 +11,8 @@ LogBox.ignoreLogs([
     'Non-serializable values were found in the navigation state',
 ]);
 
-const IP = '192.168.1.9'
-const PORT = '3002'
+const IP = env.IP
+const PORT = env.PORT
 
 const FanScreen = ({ route }) => {
 
@@ -19,6 +20,8 @@ const FanScreen = ({ route }) => {
 
     const [fanChild, setFanChild] = useState(fan)
     const [fanSpeedChild, setFanSpeedChild] = useState(fanSpeed)
+    const [fanHistory, setFanHistory] = useState(false)
+    const [fanHistoryList, setFanHistoryList] = useState([])
 
     const changeFanStatus = async () => {
         // setFanStatus(fan)
@@ -77,6 +80,21 @@ const FanScreen = ({ route }) => {
         //
     }
 
+    const getFanHistory = async () => {
+        try {
+            if (!fanHistory) {
+                const fanHistoryResponse = await axios.get(`http://${IP}:${PORT}/adafruits/get-all/fan`)
+                setFanHistoryList(fanHistoryResponse.data.data)
+            }
+            // console.log(fanHistoryResponse.data.data[0])
+            setFanHistory(!fanHistory)
+
+        }
+        catch (error) {
+            console.log('Get fan history fail:', error)
+        }
+    }
+
     return (
         <View className="fex flex-col justify-center items-center">
             <View className="my-[10px] flex justify-center items-center w-[200px] h-[200px] rounded-full bg-blue-300">
@@ -106,30 +124,19 @@ const FanScreen = ({ route }) => {
                     onToggle={changeFanStatus}
                 />
             </View>
+            <Button
+                title={fanHistory ? 'Close' : 'View Fan History'}
+                onPress={getFanHistory}
+            />
+
+            {fanHistory ? (<ScrollView className="mt-[10px] flex flex-col px-[40px] py-[10px] h-[300px] rounded-[20px] w-[75%] bg-slate-400">
+                {fanHistoryList.slice(0, 20).map(item => (
+                    <Text className='m-[10px]'>{item.value} - {item.created_at}</Text>
+                ))}
+                {/* <Text>2024/04/11 04:30:02PM - 0</Text> */}
+            </ScrollView>) : (null)}
 
 
-            <ScrollView className="flex flex-col px-[40px] py-[10px] h-[300px] rounded-[20px] w-[75%] bg-slate-400">
-                <Text>2024/04/11 04:30:02PM - 0</Text>
-                <Text>2024/04/11 04:30:02PM - 0</Text>
-                <Text>2024/04/11 04:30:02PM - 0</Text>
-                <Text>2024/04/11 04:30:02PM - 0</Text>
-                <Text>2024/04/11 04:30:02PM - 0</Text>
-                <Text>2024/04/11 04:30:02PM - 0</Text>
-                <Text>2024/04/11 04:30:02PM - 0</Text>
-                <Text>2024/04/11 04:30:02PM - 0</Text>
-                <Text>2024/04/11 04:30:02PM - 0</Text>
-                <Text>2024/04/11 04:30:02PM - 0</Text>
-                <Text>2024/04/11 04:30:02PM - 0</Text>
-                <Text>2024/04/11 04:30:02PM - 0</Text>
-                <Text>2024/04/11 04:30:02PM - 0</Text>
-                <Text>2024/04/11 04:30:02PM - 0</Text>
-                <Text>2024/04/11 04:30:02PM - 0</Text>
-                <Text>2024/04/11 04:30:02PM - 0</Text>
-                <Text>2024/04/11 04:30:02PM - 0</Text>
-                <Text>2024/04/11 04:30:02PM - 0</Text>
-                <Text>2024/04/11 04:30:02PM - 0</Text>
-                <Text>2024/04/11 04:30:02PM - 0</Text>
-            </ScrollView>
         </View >
     )
 }
