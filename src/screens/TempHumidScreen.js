@@ -64,44 +64,56 @@ const TempHumidScreen = () => {
 
 
 
-    let content = null
+    let tempContent = null
+    let humidContent = null
     let backgroundColor = null
-    if ((tempLower <= temp && temp <= tempUpper) && (humidLower <= humid && humid <= humidUpper)) {
-        content = 'Normal'
+    let borderColor = null
+    if (tempLower <= temp && temp <= tempUpper) {
+        tempContent = 'Temp is Normal'
         backgroundColor = 'bg-green-300'
     }
 
     else {
-        if (temp < tempLower) {
-            content = 'Temperature is low'
-            backgroundColor = 'bg-blue-500'
+        if (temp > tempUpper) {
+            tempContent = 'Temp is high'
+            backgroundColor = 'bg-red-400'
         }
 
-        else if (temp > tempUpper) {
-            content = 'Temperature is high'
-            backgroundColor = 'bg-red-500'
-        }
-
-        else if (humid < humidLower) {
-            content = 'Humidity is low'
-            backgroundColor = 'bg-[#B6A795]'
-        }
         else {
-            content = 'Humidity is High'
-
-            backgroundColor = 'bg-[#808080]'
+            tempContent = 'Temp is low'
+            backgroundColor = 'bg-blue-400'
         }
     }
+
+    if (humidLower <= humid && humid <= humidUpper) {
+        humidContent = 'Humid is Normal'
+        borderColor = 'border-[#047857]'
+    }
+
+    else {
+        if (humid > humidUpper) {
+            humidContent = 'Humidity is high'
+            borderColor = 'border-gray-300'
+        }
+
+        else {
+            humidContent = 'Humidity is low'
+            borderColor = 'border-[#A52A2A]'
+        }
+    }
+
+
 
     const renderComponent = () => {
         return (
             <TouchableOpacity
                 onPress={() => navigation.navigate('TempHumidHistory')}
-                className={`flex justify-center items-center w-[200px] h-[200px] rounded-full ${backgroundColor}`}
+                className={`flex justify-center items-center w-[200px] h-[200px] rounded-full ${backgroundColor} ${borderColor} border-[13px]`}
             >
                 <Text className="font-sans font-extrabold text-[40px]">{temp}° C</Text>
                 <Text className="font-sans font-extrabold text-[20px]">H: {humid}%</Text>
-                <Text className="font-sans font-extrabold text-[15px]">{content}</Text>
+                <Text className="font-sans font-extrabold text-[15px]">{tempContent}</Text>
+                <Text className="font-sans font-extrabold text-[15px]">{humidContent}</Text>
             </TouchableOpacity>
         )
     }

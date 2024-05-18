@@ -339,7 +339,9 @@ const HomeScreen = () => {
                 </View>
 
                 <View className="flex justify-center items-center h-[200px] w-1/2 p-4">
-                    <TouchableOpacity className='flex justify-center items-center bg-red-300 h-[170px] w-[170px] rounded-[20px]'>
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate('Door')}
+                        className='flex justify-center items-center bg-red-300 h-[170px] w-[170px] rounded-[20px]'>
                         {/* Door Control */}
                         <Text className="mb-[10px] font-sans font-bold">Door</Text>
                         <Image className="h-[30px] w-[30px] mb-[10px]" source={require('../../assets/door.png')} />

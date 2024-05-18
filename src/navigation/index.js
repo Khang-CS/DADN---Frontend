@@ -21,6 +21,7 @@ function AppNavigation() {
                 <Stack.Screen name="Home" component={HomeScreen} />
                 <Stack.Screen name="Fan" component={FanScreen} />
                 <Stack.Screen name="Light" component={LedScreen} />
+                <Stack.Screen name='Door' component={DoorScreen} />
                 <Stack.Screen name='Threshold' component={ThresholdScreen} />
                 <Stack.Screen name='TempHumidHistory' component={TempHumidHistoryScreen} />
             </Stack.Navigator>
