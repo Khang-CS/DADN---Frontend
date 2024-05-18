@@ -4,6 +4,7 @@ import InputSpinner from "react-native-input-spinner";
 import ToggleSwitch from 'toggle-switch-react-native';
 import { LogBox } from 'react-native';
 import env from '../api/env.json'
+import ztoUTC from '../api/SupportFunction';
 
 import axios from 'axios'
 
@@ -131,7 +132,7 @@ const FanScreen = ({ route }) => {
 
             {fanHistory ? (<ScrollView className="mt-[10px] flex flex-col px-[40px] py-[10px] h-[300px] rounded-[20px] w-[75%] bg-slate-400">
                 {fanHistoryList.slice(0, 20).map(item => (
-                    <Text className='m-[10px]'>{item.value} - {item.created_at}</Text>
+                    <Text className='m-[10px]'>{item.value} - {ztoUTC(item.created_at)}</Text>
                 ))}
                 {/* <Text>2024/04/11 04:30:02PM - 0</Text> */}
             </ScrollView>) : (null)}

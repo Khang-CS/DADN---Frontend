@@ -2,10 +2,12 @@ import { View, Text, TouchableOpacity, LogBox, Button, ScrollView } from 'react-
 import React, { useState } from 'react'
 import env from '../api/env.json'
 import axios from 'axios';
-
+import ztoUTC from '../api/SupportFunction';
 LogBox.ignoreLogs([
     'Non-serializable values were found in the navigation state',
 ]);
+
+
 
 const IP = env.IP
 const PORT = env.PORT
@@ -64,6 +66,40 @@ const LedScreen = ({ route }) => {
         }
 
         else if (ledColor == '#8b5cf6') {
+            return 'bg-violet-500'
+        }
+
+        else {
+            return 'bg-black'
+        }
+    }
+
+    const hexToColorClass = (hex) => {
+        if (hex == '#ef4444') {
+            return 'bg-red-500'
+        }
+
+        else if (hex == '#f59e0b') {
+            return 'bg-orange-500'
+        }
+
+        else if (hex == '#fbbf24') {
+            return 'bg-yellow-500'
+        }
+
+        else if (hex == '#10b981') {
+            return 'bg-green-500'
+        }
+
+        else if (hex == '#3b82f6') {
+            return 'bg-blue-500'
+        }
+
+        else if (hex == '#6366f1') {
+            return 'bg-indigo-500'
+        }
+
+        else if (hex == '#8b5cf6') {
             return 'bg-violet-500'
         }
 
@@ -200,7 +236,11 @@ const LedScreen = ({ route }) => {
 
             {ledHistory ? (<ScrollView className="mt-[10px] flex flex-col px-[40px] py-[10px] h-[250px] rounded-[20px] w-[80%] bg-slate-400">
                 {ledHistoryList.slice(0, 20).map(item => (
-                    <Text className='m-[10px]'>{item.value} - {item.created_at}</Text>
+                    <View className='flex flex-row py-[10px] justify-center'>
+                        <View className={`w-[30px] h-[10px] ${hexToColorClass(item.value)}`}></View>
+                        <Text> {ztoUTC(item.created_at)}</Text>
+                    </View>
+
                 ))}
                 {/* <Text>2024/04/11 04:30:02PM - 0</Text> */}
             </ScrollView>) : (null)}

@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, TextInput, Button } from 'react-native'
+import { View, Text, TouchableOpacity, Alert } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import InputSpinner from "react-native-input-spinner";
 import env from '../api/env.json'
@@ -57,10 +57,12 @@ const ThresholdScreen = () => {
 
             console.log(saveTempThreshold.data.message)
             console.log(saveHumidThreshold.data.message)
+            Alert.alert('Thresholds are saved successfully')
 
         }
         catch (error) {
             console.log('Save threshold failed: ', error)
+            Alert.alert('Fail to save threshold')
         }
     }
 
